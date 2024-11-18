@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Formulario con Selección de Gráfico</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #91143e;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h2 {
+      color: #22b63a;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .form-container {
+      background: #e73232;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(128, 37, 189, 0.1);
+      max-width: 600px;
+      margin: 0 auto 20px;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: #555;
+    }
+
+    input[type="text"],
+    select {
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    canvas {
+      display: block;
+      margin: 0 auto;
+      max-width: 100%;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 14px;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Formulario para Generar Gráfico de Ventas- Jeremy Peña</h2>
+
+<div class="form-container">
+  <form id="salesForm">
+    <label for="months">Meses (separados por comas):</label>
+    <input type="text" id="months" name="months" placeholder="E.g., Enero,Febrero,Marzo">
+
+    <label for="sales">Ventas por mes (separadas por comas):</label>
+    <input type="text" id="sales" name="sales" placeholder="E.g., 100,200,150">
+
+    <label for="chartType">Selecciona el tipo de gráfico:</label>
+    <select id="chartType">
+      <option value="bar">Barra</option>
+      <option value="line">Línea</option>
+      <option value="pie">Pastel</option>
+      <option value="doughnut">Dona</option>
+    </select>
+
+    <button type="button" onclick="generateChart()">Generar Gráfico</button>
+  </form>
+</div>
+
+<canvas id="salesChart" width="600" height="400"></canvas>
+
+<footer>
+  <p>Desarrollado por Jeremy Peña </p>
+</footer>
+
+<script>
+  function generateChart() {
+    // Obtener datos del formulario
+    const monthsInput = document.getElementById('months').value;
+    const salesInput = document.getElementById('sales').value;
+    const chartType = document.getElementById('chartType').value; // Tipo de gráfico
+
+    // Convertir los datos en arreglos
+    const months = monthsInput.split(',').map(item => item.trim());
+    const sales = salesInput.split(',').map(item => parseFloat(item.trim()));
+
+    // Validar que los datos sean consistentes
+    if (months.length === 0 || sales.length === 0 || months.length !== sales.length) {
+      alert('Por favor, asegúrese de que ambos campos estén completos y tengan el mismo número de valores.');
+      return;
+    }
+
+    // Destruir gráfico previo si existe
+    if (window.myChart) {
+      window.myChart.destroy();
+    }
+
+    // Crear el gráfico con Chart.js
+    const ctx = document.getElementById('salesChart').getContext('2d');
+    window.myChart = new Chart(ctx, {
+      type: chartType, // El tipo de gráfico es dinámico
+      data: {
+        labels: months, // Etiquetas (meses)
+        datasets: [{
+          label: 'Ventas ($)',
+          data: sales, // Datos (ventas)
+          backgroundColor: chartType === 'pie' || chartType === 'doughnut'
+            ? ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'] // Colores para gráficos circulares
+            : 'rgba(75, 192, 192, 0.5)', // Color para barras y líneas
+          borderColor: 'rgba(75, 192, 192, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'top',
+          }
+        },
+        scales: chartType === 'pie' || chartType === 'doughnut'
+          ? {} // Sin escalas para gráficos circulares
+          : {
+              y: {
+                beginAtZero: true
+              }
+            }
+      }
+    });
+  }
+</script>
+
+</body>
+</html>
